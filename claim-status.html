@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FindIt Campus: report lost items, post found items, and get smart match suggestions on one campus." />
+    <meta name="theme-color" content="#12284c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <title>Claim status · FindIt Campus</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <header class="site-header" id="site-header"></header>
+      <main id="main" class="main" tabindex="-1">
+        <div class="container page narrow">
+          <h1>Check your claim status</h1>
+          <p class="muted">Enter the claim code you received when you submitted your claim. Your proof and contact details are never shown here.</p>
+
+          <form class="form card pad" id="status-form" novalidate>
+            <div class="field">
+          <label for="code">Claim code</label>
+          <input id="code" name="code" data-hint="code-hint" aria-describedby="code-hint" type="text" maxlength="20" autocomplete="off" spellcheck="false">
+          <p id="code-hint" class="hint">Looks like K7QX-4MPD-93TF</p>
+        </div>
+            <button type="submit" class="btn btn-primary" id="status-btn" disabled>Check status</button>
+          </form>
+          <div id="status-result"></div>
+        </div>
+      </main>
+      <footer class="site-footer" id="site-footer"></footer>
+    </div>
+    <script type="module">
+import { initClaimStatusPage } from './js/claims.js';
+      initClaimStatusPage();
+</script>
+  </body>
+</html>

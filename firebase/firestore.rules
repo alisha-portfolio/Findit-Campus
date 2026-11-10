@@ -1,0 +1,176 @@
+rules_version = '2';
+
+// FindIt Campus - Firestore security rules.
+// These rules (not the website code) are what protect your data.
+//
+//   items/{id}          public report fields. Anyone can read VISIBLE ones; only admins read hidden ones.
+//   contacts/{id}       private reporter name/email/phone. ADMIN READ ONLY.
+//   claims/{id}         private claim (claimant + proof). ADMIN READ ONLY.
+//   claimStatus/{code}  status of one claim. Readable only by someone who knows the secret code
+//                       (get is allowed, list is not, so codes cannot be enumerated).
+//   admins/{uid}        a document here makes that user an administrator. Created ONLY by hand in
+//                       the Firebase console. No client can write it.
+//   settings/site       optional site name / admin contact card. Public read, admin write.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- helpers
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function str(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function categoryOk(c) {
+      return c in ['Wallet', 'Phone', 'Keys', 'ID Card', 'Bag', 'Water Bottle',
+                   'Books & Stationery', 'Electronics', 'Clothing', 'Accessories', 'Documents', 'Other'];
+    }
+    function locationOk(l) {
+      return l in ['Library', 'Computer Lab', 'Science Laboratory', 'Classroom Block A', 'Classroom Block B',
+                   'Administration Block', 'Cafeteria', 'Student Center', 'Prayer Area', 'Sports Ground',
+                   'Parking Area', 'Main Gate', 'Bus Stop', 'Hostel', 'Other / Not sure'];
+    }
+
+    function validNewItem(itemId) {
+      let d = request.resource.data;
+      return signedIn()
+        && d.keys().hasOnly(['type', 'title', 'category', 'description', 'location', 'eventDate', 'color',
+                             'imageUrl', 'imagePath', 'status', 'visibility', 'linkedItemId',
+                             'ownerUid', 'createdAt', 'updatedAt'])
+        && d.type in ['lost', 'found']
+        && str(d.title, 3, 100)
+        && categoryOk(d.category)
+        && str(d.description, 10, 1000)
+        && locationOk(d.location)
+        && d.eventDate is string && d.eventDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && str(d.color, 3, 40)
+        // photo: a Storage https link, or (free plan) a small JPEG thumbnail stored inline
+        && (d.imageUrl == null
+            || (str(d.imageUrl, 1, 800) && d.imageUrl.matches('^https://.*'))
+            || (str(d.imageUrl, 1, 60000) && d.imageUrl.matches('^data:image/jpeg;base64,.*')))
+        && (d.imagePath == null || (str(d.imagePath, 1, 200) && d.imagePath.matches('^items/' + itemId + '/[a-f0-9]{32}\\.(jpg|png|webp)$')))
+        && d.status == 'open'
+        && d.visibility == 'visible'
+        && d.linkedItemId == null
+        && d.ownerUid == request.auth.uid
+        && d.createdAt == request.time
+        && d.updatedAt == request.time
+        // the private contact document must be created in the same batch
+        && existsAfter(/databases/$(database)/documents/contacts/$(itemId));
+    }
+
+    // ------------------------------------------------------------------ admins
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;   // lets the site check "am I an admin?"
+      allow write: if false;                                  // create these by hand in the console
+    }
+
+    // ---------------------------------------------------------------- settings
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------- items
+    match /items/{itemId} {
+      allow read: if resource.data.visibility == 'visible' || isAdmin();
+      allow create: if validNewItem(itemId);
+      // Admins may change ONLY these fields (status, visibility, link, timestamp).
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'visibility', 'linkedItemId', 'updatedAt'])
+        && request.resource.data.status in ['open', 'returned', 'closed']
+        && request.resource.data.visibility in ['visible', 'hidden']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------ images
+    // Larger photo for a report (free-plan mode). Readable only while the report is visible.
+    match /images/{itemId} {
+      allow get: if isAdmin() || get(/databases/$(database)/documents/items/$(itemId)).data.visibility == 'visible';
+      allow list: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['data', 'ownerUid', 'createdAt'])
+        && str(request.resource.data.data, 1, 380000)
+        && request.resource.data.data.matches('^data:image/jpeg;base64,.*')
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/items/$(itemId)).data.ownerUid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------- contacts
+    match /contacts/{itemId} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['contactName', 'contact', 'contactPhone', 'ownerUid', 'createdAt'])
+        && str(request.resource.data.contactName, 2, 100)
+        && str(request.resource.data.contact, 6, 120)
+        && request.resource.data.contact.matches('^[^@\\s]{1,64}@[^@\\s]{1,255}\\.[^@\\s]{2,}$')
+        && str(request.resource.data.contactPhone, 7, 30)
+        && request.resource.data.contactPhone.matches('^\\+?[0-9 ()\\-.]{7,30}$')
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        // only the person who created the report may attach contact details to it
+        && getAfter(/databases/$(database)/documents/items/$(itemId)).data.ownerUid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------ claims
+    match /claims/{claimId} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['itemId', 'itemTitle', 'claimantName', 'claimantContact', 'proof',
+                                                  'status', 'adminNote', 'reviewedBy', 'reviewedAt', 'statusCode',
+                                                  'ownerUid', 'createdAt'])
+        && str(request.resource.data.itemId, 1, 40)
+        // id = item id + "_" + 20 hex chars (hash of the contact): one claim per person per item
+        && claimId.matches('^' + request.resource.data.itemId + '_[a-f0-9]{20}$')
+        && str(request.resource.data.claimantName, 2, 100)
+        && str(request.resource.data.claimantContact, 5, 120)
+        && str(request.resource.data.proof, 20, 1500)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.adminNote == null
+        && request.resource.data.reviewedBy == null
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.statusCode.matches('^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$')
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        // only visible, open FOUND items can be claimed
+        && get(/databases/$(database)/documents/items/$(request.resource.data.itemId)).data.type == 'found'
+        && get(/databases/$(database)/documents/items/$(request.resource.data.itemId)).data.status == 'open'
+        && get(/databases/$(database)/documents/items/$(request.resource.data.itemId)).data.visibility == 'visible'
+        && get(/databases/$(database)/documents/items/$(request.resource.data.itemId)).data.title == request.resource.data.itemTitle
+        && existsAfter(/databases/$(database)/documents/claimStatus/$(request.resource.data.statusCode));
+      allow update: if isAdmin()
+        && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote', 'reviewedBy', 'reviewedAt'])
+        && request.resource.data.status in ['approved', 'rejected']
+        && (request.resource.data.adminNote == null || str(request.resource.data.adminNote, 1, 500))
+        && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------- claimStatus
+    match /claimStatus/{code} {
+      allow get: if true;            // knowing the secret code is the permission
+      allow list: if isAdmin();      // nobody can list/guess codes
+      allow create: if signedIn()
+        && code.matches('^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$')
+        && request.resource.data.keys().hasOnly(['status', 'itemId', 'itemTitle', 'adminNote', 'createdAt', 'reviewedAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.adminNote == null
+        && request.resource.data.reviewedAt == null
+        && str(request.resource.data.itemId, 1, 40)
+        && str(request.resource.data.itemTitle, 3, 100)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote', 'reviewedAt'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isAdmin();
+    }
+
+    // Everything else is closed.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

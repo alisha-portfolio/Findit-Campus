@@ -1,0 +1,12 @@
+{
+  "name": "findit-campus",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "FindIt Campus: static HTML/CSS/vanilla-JS lost & found site backed by Firebase.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "python -m http.server 8080"
+  },
+  "license": "MIT"
+}

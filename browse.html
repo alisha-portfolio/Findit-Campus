@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FindIt Campus: report lost items, post found items, and get smart match suggestions on one campus." />
+    <meta name="theme-color" content="#12284c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <title>Browse items · FindIt Campus</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <header class="site-header" id="site-header"></header>
+      <main id="main" class="main" tabindex="-1">
+        <div class="container page">
+          <h1>Browse items</h1>
+          <p class="muted">Search reports from across campus. Contact details stay private.</p>
+
+          <form class="filters card" id="filters" role="search" aria-label="Filter items">
+            <div class="field field-wide">
+          <label for="q">Search by item name or description</label>
+          <input id="q" name="q" type="search" placeholder="e.g. black wallet, red keychain…" maxlength="100">
+        </div>
+            <div class="field">
+          <label for="type">Lost / found</label>
+          <select id="type" name="type"><option value="">All</option><option value="lost">Lost</option><option value="found">Found</option></select>
+        </div>
+            <div class="field">
+          <label for="category">Category</label>
+          <select id="category" name="category"><option value="">All categories</option></select>
+        </div>
+            <div class="field">
+          <label for="location">Campus location</label>
+          <select id="location" name="location"><option value="">All locations</option></select>
+        </div>
+            <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status"><option value="">Any status</option><option value="open">Open</option><option value="returned">Returned</option><option value="closed">Closed</option></select>
+        </div>
+            <div class="field">
+          <label for="date_from">Date from</label>
+          <input id="date_from" name="date_from" type="date">
+        </div>
+            <div class="field">
+          <label for="date_to">Date to</label>
+          <input id="date_to" name="date_to" type="date">
+        </div>
+            <button type="button" class="btn btn-ghost" id="clear-filters" hidden>Clear filters</button>
+          </form>
+
+          <div aria-live="polite" class="results-count muted" id="count"></div>
+          <div id="results"></div>
+        </div>
+      </main>
+      <footer class="site-footer" id="site-footer"></footer>
+    </div>
+    <script type="module" src="js/browse.js"></script>
+  </body>
+</html>

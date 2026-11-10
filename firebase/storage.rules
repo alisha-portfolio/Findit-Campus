@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// FindIt Campus - Cloud Storage security rules (item photographs).
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Photos live at items/{itemId}/{random 32-hex name}.{jpg|png|webp}
+    match /items/{itemId}/{fileName} {
+      // A photo can be fetched if you know its path/URL, but the folder cannot be listed.
+      allow get: if true;
+      allow list: if false;
+
+      // Any signed-in visitor (anonymous sign-in is fine) may UPLOAD a new photo, but only:
+      //  - a JPEG, PNG or WebP image, - under 3 MB, - with a random generated name,
+      //  - and never over an existing file.
+      allow create: if request.auth != null
+        && request.resource.size < 3 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)')
+        && fileName.matches('[a-f0-9]{32}\\.(jpg|png|webp)');
+
+      // Only administrators may replace or delete photos.
+      allow update, delete: if request.auth != null
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // Everything else is closed.
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

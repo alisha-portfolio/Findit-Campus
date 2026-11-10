@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FindIt Campus: report lost items, post found items, and get smart match suggestions on one campus." />
+    <meta name="theme-color" content="#12284c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <title>Report an item · FindIt Campus</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <header class="site-header" id="site-header"></header>
+      <main id="main" class="main" tabindex="-1">
+        <div class="container page narrow">
+          <h1 id="report-title">Report a lost item</h1>
+          <p class="muted" id="report-intro"></p>
+          <div id="form-alert"></div>
+
+          <form id="report-form" novalidate class="form card pad">
+            <fieldset class="segmented">
+              <legend>What are you reporting?</legend>
+              <label class="on" id="seg-lost"><input type="radio" name="type" value="lost" checked /> I lost something</label>
+              <label id="seg-found"><input type="radio" name="type" value="found" /> I found something</label>
+            </fieldset>
+
+            <div class="form-grid">
+              <div class="field">
+          <label for="title">Item name <span class="req" aria-hidden="true"> *</span></label>
+          <input id="title" required name="title" data-hint="title-hint" aria-describedby="title-hint" type="text" maxlength="100">
+          <p id="title-hint" class="hint">Short and specific, e.g. “Black leather wallet”.</p>
+        </div>
+              <div class="field">
+          <label for="color">Colour <span class="req" aria-hidden="true"> *</span></label>
+          <input id="color" required name="color" data-hint="color-hint" aria-describedby="color-hint" type="text" maxlength="40">
+          <p id="color-hint" class="hint">Main colour, e.g. “Black” or “Blue and white”.</p>
+        </div>
+              <div class="field">
+          <label for="category">Category <span class="req" aria-hidden="true"> *</span></label>
+          <select id="category" required name="category"><option value="">Choose a category…</option></select>
+        </div>
+            </div>
+
+            <div class="field">
+          <label for="description">Description and distinctive features <span class="req" aria-hidden="true"> *</span></label>
+          <textarea id="description" required name="description" data-hint="description-hint" aria-describedby="description-hint" rows="5" maxlength="1000"></textarea>
+          <p id="description-hint" class="hint">Colour, brand, size, stickers, scratches, contents. Don't post serial or card numbers publicly; keep one detail back to prove ownership.</p>
+        </div>
+
+            <div class="form-grid">
+              <div class="field">
+          <label for="location">Where did you lose it? <span class="req" aria-hidden="true"> *</span></label>
+          <select id="location" required name="location"><option value="">Choose a location…</option></select>
+        </div>
+              <div class="field">
+          <label for="event_date">Date lost <span class="req" aria-hidden="true"> *</span></label>
+          <input id="event_date" required name="event_date" type="date">
+        </div>
+            </div>
+
+            <div class="field">
+          <label for="image">Photo (optional)</label>
+          <input id="image" name="image" data-hint="image-hint" aria-describedby="image-hint" type="file" accept="image/jpeg,image/png,image/webp">
+          <p id="image-hint" class="hint">JPEG, PNG or WebP, up to <span data-max-mb>3</span> MB. Please don't photograph IDs or cards with visible numbers.</p>
+        </div>
+            <div class="preview" id="preview" hidden>
+              <img id="preview-img" src="" alt="Preview of the selected upload" />
+              <button type="button" class="btn btn-ghost" id="remove-photo">Remove photo</button>
+            </div>
+
+            <fieldset class="private-box">
+              <legend>Your contact details <span class="badge badge-private">Private</span></legend>
+              <p class="hint">Only the administrator can see these. They are never shown on the website, and the <span id="other-party">finder</span> never receives them. Everything goes through the administrator.</p>
+              <div class="form-grid">
+                <div class="field">
+          <label for="contact_name">Your name <span class="req" aria-hidden="true"> *</span></label>
+          <input id="contact_name" required name="contact_name" type="text" autocomplete="name" maxlength="100">
+        </div>
+                <div class="field">
+          <label for="contact">Email (Gmail) <span class="req" aria-hidden="true"> *</span></label>
+          <input id="contact" required name="contact" type="email" autocomplete="email" maxlength="120">
+        </div>
+                <div class="field">
+          <label for="contact_phone">Phone number <span class="req" aria-hidden="true"> *</span></label>
+          <input id="contact_phone" required name="contact_phone" data-hint="contact_phone-hint" aria-describedby="contact_phone-hint" type="tel" autocomplete="tel" maxlength="30">
+          <p id="contact_phone-hint" class="hint">For example 0300 1234567.</p>
+        </div>
+              </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Post lost item report</button>
+          </form>
+        </div>
+      </main>
+      <footer class="site-footer" id="site-footer"></footer>
+    </div>
+    <script type="module" src="js/reports.js"></script>
+  </body>
+</html>

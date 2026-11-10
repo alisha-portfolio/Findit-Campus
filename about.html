@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FindIt Campus: report lost items, post found items, and get smart match suggestions on one campus." />
+    <meta name="theme-color" content="#12284c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <title>About & help · FindIt Campus</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <header class="site-header" id="site-header"></header>
+      <main id="main" class="main" tabindex="-1">
+        <div class="container page narrow prose">
+          <h1>About FindIt Campus</h1>
+          <p>
+            FindIt Campus is a lost &amp; found service built for one community: <strong data-university>Mehran University of Engineering and Technology</strong>.
+            Students and staff lose wallets, phones, keys, ID cards and bags every week, and the people who find them rarely know who to
+            return them to. FindIt Campus puts both sides in one place and uses simple, transparent matching to bring them together.
+          </p>
+
+          <h2>Collecting an item safely</h2>
+          <ol>
+            <li><strong>Report your lost item</strong> with your name, email, phone and the item details. The administrator will contact you if a matching item is handed in.</li>
+            <li><strong>Or send a claim</strong> on a found item's page with details only the owner would know. Never post those details publicly.</li>
+            <li><strong>Wait for verification.</strong> An administrator compares your proof with what the finder reported. You can check progress with your claim code on the <a href="claim-status.html">claim status page</a>.</li>
+            <li><strong>Meet in a public, staffed place</strong> such as the lost &amp; found office or a security desk. Avoid isolated spots, and bring a friend if you prefer.</li>
+            <li><strong>Bring photo ID</strong> (student card or national ID). The person handing over the item should check it.</li>
+            <li><strong>Check your belongings</strong> before leaving, and tell an administrator if anything is missing.</li>
+          </ol>
+
+          <div class="callout">
+            <strong>Ownership is always verified before handover.</strong> A match score is only a suggestion. Nothing is approved automatically,
+            and no item is released without an administrator confirming the owner.
+          </div>
+
+          <h2>Found something?</h2>
+          <p>
+            Post a <a href="report.html?type=found">found-item report</a>, then hand the item to the lost &amp; found administrator. Owner and finder never contact each other directly; the administrator connects them.
+            Don't publish serial numbers, card numbers or other identifying details in the public description. Keep one detail back so the real owner can prove it's theirs.
+          </p>
+
+          <h2>Your privacy</h2>
+          <p>
+            Your name, email and phone number are visible only to campus administrators. Claim proofs are never shown publicly.
+            Reports can be hidden or removed by an administrator if they are inappropriate or duplicated.
+          </p>
+
+          <h2>Contact &amp; help</h2>
+          <div id="admin-contact"></div>
+          <p class="muted">Lost something valuable such as a passport or bank card? Please also report it to the relevant authority or your bank straight away.</p>
+        </div>
+      </main>
+      <footer class="site-footer" id="site-footer"></footer>
+    </div>
+    <script type="module">
+import { initPage, AdminContactCard, settings } from './js/app.js';
+      import { render } from './js/utils.js';
+      await initPage('about');
+      render(document.getElementById('admin-contact'), AdminContactCard(settings.adminContact));
+</script>
+  </body>
+</html>

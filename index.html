@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FindIt Campus: report lost items, post found items, and get smart match suggestions on one campus." />
+    <meta name="theme-color" content="#12284c" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <title>FindIt Campus</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <a class="skip-link" href="#main">Skip to main content</a>
+      <header class="site-header" id="site-header"></header>
+      <main id="main" class="main" tabindex="-1">
+        <section class="hero">
+          <div class="container hero-grid">
+            <div>
+              <p class="eyebrow" data-university>Mehran University of Engineering and Technology</p>
+              <h1>Lost something on campus? Found something? Let's connect the two.</h1>
+              <p class="lead">
+                FindIt Campus is the one place for your campus's lost &amp; found. Post a report, get smart match
+                suggestions, and get belongings back to their owners, safely, through the campus administrator.
+              </p>
+              <div class="btn-row">
+                <a href="report.html?type=lost" class="btn btn-primary btn-lg">I Lost Something</a>
+                <a href="report.html?type=found" class="btn btn-accent btn-lg">I Found Something</a>
+              </div>
+              <p class="hero-sub"><a href="browse.html">Browse all items →</a></p>
+            </div>
+            <div class="stats" id="stats" aria-label="Campus statistics"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section-head">
+              <h2>Recently reported</h2>
+              <a href="browse.html">See all</a>
+            </div>
+            <div id="recent"></div>
+          </div>
+        </section>
+
+        <section class="section section-alt">
+          <div class="container">
+            <h2>How it works</h2>
+            <ol class="steps">
+            <li class="card step">
+              <span class="step-n" aria-hidden="true">1</span>
+              <h3>Report it</h3>
+              <p>Lost or found something? Fill in your name, email, phone and the item details: name, category, colour, description, where and when.</p>
+            </li>
+            <li class="card step">
+              <span class="step-n" aria-hidden="true">2</span>
+              <h3>Finders hand it in</h3>
+              <p>If you found an item, give it to the Lost &amp; Found administrator. Nobody contacts the owner directly.</p>
+            </li>
+            <li class="card step">
+              <span class="step-n" aria-hidden="true">3</span>
+              <h3>Admin matches</h3>
+              <p>The administrator compares lost and found reports (with help from smart match suggestions) and links the right pair.</p>
+            </li>
+            <li class="card step">
+              <span class="step-n" aria-hidden="true">4</span>
+              <h3>Verified handover</h3>
+              <p>Only if the details match, the administrator contacts the owner and hands the item over. Owner and finder never see each other's details.</p>
+            </li>
+            </ol>
+            <h2 class="section-gap">Contact the administrator</h2>
+            <div id="admin-contact"></div>
+            <p class="muted center">
+              Already submitted a claim? <a href="claim-status.html">Check its status with your claim code</a>.
+            </p>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer" id="site-footer"></footer>
+    </div>
+    <script type="module" src="js/home.js"></script>
+  </body>
+</html>

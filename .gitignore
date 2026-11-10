@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+*.log
+# Never commit a service-account key or admin credentials
+serviceAccount*.json
+*-adminsdk-*.json
+.env
